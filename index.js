@@ -57,7 +57,7 @@ var sessionOptions = {
     host: 'localhost',
     port: 3306,
     user: 'root',
-    password: 'wserver',
+    password: 'root',
     database: 'puzmage'
 };
 var sessionStore = new mysqlStore(sessionOptions);

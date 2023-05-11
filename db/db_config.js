@@ -1,7 +1,7 @@
 database = {
     host: 'localhost',
     user: 'root',
-    password: 'wserver',
+    password: 'root',
     database: 'puzmage'
 };
 
