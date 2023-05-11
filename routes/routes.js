@@ -7,6 +7,7 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 const Users = require("../models/usuarios_model");
 const Images = require("../models/images_model");
 const Salas = require("../models/salas_model");
+const Wombo = require('../static/js/wombo.js')
 
 /* ======================================
 ================= PAGES =================
@@ -60,10 +61,10 @@ router.get("/uploadImg", (req, res) => {
 });
 
 //JOIN MULTIPLAYER MATCH PAGE
-router.get("/unirse", (req, res)=>{
-    if(req.session.usu_email){
+router.get("/unirse", (req, res) => {
+    if (req.session.usu_email) {
         return res.render("pages/unirse");
-    }else{
+    } else {
         return res.redirect("/profile");
     }
 });
@@ -90,6 +91,19 @@ router.post("/signup", urlencodedParser, async (req, res) => {
     } else {
         return res.render("pages/signup", { msg_e: response.msg });
     }
+});
+
+router.post("/wombo", async (req, res) => {
+    var response;
+    try {
+        var wombo = new Wombo;
+        var womboResponse = await wombo.send(1, req.body.prompt, null);
+        response = { ok: true, msg: womboResponse};
+    } catch (err) {
+        response = { ok: false, msg: String(err) };
+        return res.status(200).send(response);
+    }
+    return res.status(200).send(response);
 });
 
 //LOGIN ACTION
@@ -139,113 +153,116 @@ router.post("/uploadImg", async (req, res) => {
 });
 
 //DELETE IMAGE ACTION
-router.post("/deleteImg", async(req, res)=>{
-    var data; 
+router.post("/deleteImg", async (req, res) => {
+    var data;
     var imgObj = new Images();
-    try{
+    try {
         data = { img_id: req.body.img_id };
-    }catch(err){
+    } catch (err) {
         console.log(err);
     }
     var response = await imgObj.delete_img(data);
-    if(response.ok === false){
+    if (response.ok === false) {
         console.log(response.msg);
         return res.redirect("/profile");
-    }else{
+    } else {
         return res.redirect("/profile");
     }
 });
 
 //PLAY IMAGE ACTION
-router.post("/playImg", (req, res)=>{
-    if(req.body.pimg_id){
-        return res.render("pages/playImg", {img_id: req.body.pimg_id});
+router.post("/playImg", (req, res) => {
+    if (req.body.pimg_id) {
+        return res.render("pages/playImg", { img_id: req.body.pimg_id });
     }
     return res.redirect("/profile");
 });
 
 //PLAY SOLO ACTION
-router.post("/playSolo", async(req, res)=>{
-    if(req.body.img_id){
+router.post("/playSolo", async (req, res) => {
+    if (req.body.img_id) {
         var imgObj = new Images();
         var response = await imgObj.obtenerImgId(req.body.img_id);
-        if(response.ok === true){
-            return res.render("pages/solo", {imgObj: response.result});
-        }else{
+        if (response.ok === true) {
+            return res.render("pages/solo", { imgObj: response.result });
+        } else {
             console.log(response.msg);
             return res.redirect("/profile");
         }
-    }else{
+    } else {
         return res.redirect("/profile");
     }
 });
 
 //PLAY MULTIPLAYER ACTION
-router.post("/playMulti", (req, res)=>{
-    if(req.body.img_id && req.session.usu_email){
-        return res.render("pages/createMatch", {img_id: req.body.img_id, usu_email: req.session.usu_email});
-    }else{
+router.post("/playMulti", (req, res) => {
+    if (req.body.img_id && req.session.usu_email) {
+        return res.render("pages/createMatch", { img_id: req.body.img_id, usu_email: req.session.usu_email });
+    } else {
         return res.redirect("/profile");
     }
 });
 
 //CREATE MATCH ACTION
-router.post("/createMatch", async(req, res)=>{
+router.post("/createMatch", async (req, res) => {
     var response;
     var data;
-    try{
+    try {
         data = {
             usu_email: req.body.usu_email,
             sal_img: req.body.img_id,
             sal_code: req.body.sal_code,
             sal_level: req.body.sal_level
         };
-    }catch(err){
+    } catch (err) {
         console.log(err);
         return res.redirect("/profile");
     }
     var salaObj = new Salas();
     response = await salaObj.crear_sal(data);
-    if(response.ok === false){
+    if (response.ok === false) {
         console.log(response.msg);
-        return res.render("pages/createMatch", {img_id: req.body.img_id, usu_email: req.session.usu_email, msgE: response.msg});
+        return res.render("pages/createMatch", { img_id: req.body.img_id, usu_email: req.session.usu_email, msgE: response.msg });
     }
     return res.redirect(307, "/multiplayerMatch");
 });
 
 //PLAY MULTIPLAYER MATCH ACTION
-router.post("/multiplayerMatch", async (req, res)=>{
-    if(req.body.sal_code && req.session.usu_email){
+router.post("/multiplayerMatch", async (req, res) => {
+    if (req.body.sal_code && req.session.usu_email) {
         var salaObj = new Salas();
         var usuObj = new Users();
-        var data = {sal_code: req.body.sal_code};
+        var data = { sal_code: req.body.sal_code };
         var response = await salaObj.unirse_sal(data);
         var userReq = await usuObj.obtenerUsarioEmail(req.session.usu_email);
-        if(response.ok === false || userReq.ok === false){
-            return res.render("pages/unirse", {msgE: response.msg});
+        if (response.ok === false || userReq.ok === false) {
+            return res.render("pages/unirse", { msgE: response.msg });
         }
-        return res.render("pages/multiplayer", {usu: userReq.result, sal: response.salObj, img: response.imgObj});
-    }else{
+        return res.render("pages/multiplayer", { usu: userReq.result, sal: response.salObj, img: response.imgObj });
+    } else {
         return res.redirect("/profile");
     }
 });
 
 //CLOSE MULTIPLAYERMATCH
-router.post("/matchStarted", async(req, res)=>{
-    var response; 
+router.post("/matchStarted", async (req, res) => {
+    var response;
     var salObj = new Salas();
     var data;
-    try{
-        data = {sal_code: req.body.sal_code};
-    }catch(err){
-        response = {ok: false, msg: String(err)};
+    try {
+        data = { sal_code: req.body.sal_code };
+    } catch (err) {
+        response = { ok: false, msg: String(err) };
         return res.status(200).send(response);
     }
     response = await salObj.close_sal(data);
-    if(response.ok === false){
+    if (response.ok === false) {
         console.log(response.msg);
     }
     return res.status(200).send(response);
 });
+
+
+
 
 module.exports = router;

@@ -11,24 +11,37 @@
 </head>
 
 <body>
+
     <%- include('../partials/navbar'); %>
-    <div class="container">
-        <label for="" id="usu_email" style="color: white;" ><%= usu_email %></label>
-        <div class="cmUploadImg">
-            <h4>Subir imagen</h4>
-            <div class="cmImgUploaded">
-                <img src="" class="cmImg"  alt="" id="uploadedImg">
+        <div class="container">
+            <label for="" id="usu_email" style="color: white;">
+                <%= usu_email %>
+            </label>
+            <div class="cmUploadImg">
+                <h4>Subir imagen</h4>
+                <div class="cmImgUploaded">
+                    <img src="" class="cmImg" alt="" id="uploadedImg">
+                </div>
+                <input type="file" name="inpFile" id="inpFile" accept="image/png, image/jpg, image/jpeg">
+                <br /><br />
+                <h4>Modified: </h4>
+                <!-- <img src="" alt="" id="modifiedImg"> -->
+                <button class="btn btn-primary" onclick="optimizarB64()">CARGAR IMAGEN</button>
+                <button style="display:none;" id="upImgBtn" class="btn btn-success" onclick="uploadImg()">SUBIR
+                    IMAGEN</button>
+                <!-- <form action="/wombo" method="post"> -->
+                <br />
+                <h4 style="margin-top: 20px;">Generar Imagen</h4>
+                <input style="margin-bottom: 20px;" name="prompt" class="form-control" id="promptField"
+                    placeholder="Un bosque encantado con un arcoiris de fondo lleno de hadas ">
+                <button class="btn btn-primary btn-lg" onclick="sendToWombo()">Generar</button>
+                <!-- </form> -->
+                <a id="downloadImg" style="display: none;" href="https://www.youtube.com">Descargar Imagen</a>
             </div>
-            <input type="file" name="inpFile" id="inpFile" accept="image/png, image/jpg, image/jpeg">
-            <br/><br/>
-            <h4>Modified: </h4>
-            <img src="" alt="" id="modifiedImg">
-            <button class="btn btn-primary" onclick="optimizarB64()">CARGAR IMAGEN</button>
-            <button style="display:none;" id="upImgBtn" class="btn btn-success" onclick="uploadImg()">SUBIR IMAGEN</button>
         </div>
-    </div>
-    <script src="js/upImg.js"></script>
-    <script src="bootstrap/js/bootstrap.min.js"></script>
+        <script src="js/wombo.js"></script>
+        <script src="js/upImg.js"></script>
+        <script src="bootstrap/js/bootstrap.min.js"></script>
 </body>
 
 </html>
